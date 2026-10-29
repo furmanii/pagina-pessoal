@@ -1,1 +1,152 @@
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+}
+
+header {
+    background-color: #424e61;
+    color: white;
+    width: 100%;
+    padding: 20px;
+}
+
+.cabecalho-itens {
+    max-width: 1980px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cabecalho_imagem {
+    width: 100px;
+    height: auto;
+}
+
+.titulo_site {
+    padding: 20px;
+    text-align: center;
+    flex: 1;
+    font-size: 30px;
+}
+
+.sociais {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+ gap: 12px;
+}
+
+.sociais img {
+width: 35px;
+height: 35px;
+object-fit: contain;
+}
+
+.banner1 {
+display: flejustify-content: center;
+width: 100%;
+}
+
+.escola-image {
+display: block;
+width: 100%;
+height: auto;
+}
+
+.estudante {
+background-color: #faae43;
+padding: 24px 0;
+}
+
+.estudante_titulo {
+padding: 30px;
+text-align: center;
+}
+
+.estudantes_todos {
+display: flex;
+justify-content: space-around;
+align-items: flex-start;
+flex-wrap: wrap;
+gap: 24px;
+}
+
+.estudante-div {
+text-align: center;
+padding: 24px;
+}
+
+.estudante-imagem {
+width: 120px;
+height: 120px;
+object-fit: cover;
+border-radius: 50%;
+}
+
+.estudante-nome {
+text-align: center;
+margin: 10px 0;
+}
+
+.estudante-icone {
+width: 38px;
+height: 38px;
+object-fit: contain;
+padding: 4px;
+}
+
+.escola {
+background-image: linear-gradient(#40A2E3, #7FC2EF);
+color: white;
+padding: 24px 16px;
+text-align: center;
+}
+
+.escola-título {
+padding: 20px;
+text-align: center;
+}
+
+.logo_rodape {
+height: 80px;
+width: auto;
+padding: 12px 0;
+}
+
+.link {
+color: #ffffff;
+text-decoration: none;
+}
+
+@media (max-width: 600px) {
+.cabecalho-itens {
+flex-wrap: wrap;
+gap: 12px;
+}
+
+.cabecalho_imagem {
+width: 70px;
+}
+
+.titulo_site {
+font-size: 22px;
+padding: 10px;
+}
+
+.sociais {
+justify-content: center;
+width: 100%;
+}
+
+.estudantes_todos {
+ justify-content: center;
+ }
+}
+
