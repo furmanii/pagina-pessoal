@@ -22,12 +22,18 @@ let gameOver = false;
 let keys = {};
 
 // Captura de Teclado
-window.addEventListener("keydown", (e) => keys[e.key] = true);
+window.addEventListener("keydown", (e) => {
+    keys[e.key] = true;
+    // Previne o scroll da página ao usar as setas ou espaço
+    if(["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.code)) {
+        e.preventDefault();
+    }
+});
 window.addEventListener("keyup", (e) => keys[e.key] = false);
 
 // Função para gerar obstáculos
 function spawnObstacle() {
-    const lanes =; // 3 pistas possíveis
+    const lanes =; // 3 pistas alinhadas com a estrada
     const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
     
     obstacles.push({
@@ -46,56 +52,7 @@ function resetGame() {
     score = 0;
     obstacleSpeed = 4;
     gameOver = false;
-    update();
-}
-
-// Lógica de atualização do jogo
-function update() {
-    if (gameOver) {
-        drawGameOver();
-        return;
-    }
-
-    // Movimentação do jogador (limitado às bordas da estrada)
-    if ((keys["ArrowLeft"] || keys["a"] || keys["A"]) && player.x > 50) {
-        player.x -= player.speed;
-    }
-    if ((keys["ArrowRight"] || keys["d"] || keys["D"]) && player.x < 310) {
-        player.x += player.speed;
-    }
-
-    // Gerenciar tempo de aparecimento dos obstáculos
-    spawnTimer++;
-    if (spawnTimer > 90) {
-        spawnObstacle();
-        spawnTimer = 0;
-    }
-
-    // Mover obstáculos e checar colisões
-    for (let i = obstacles.length - 1; i >= 0; i--) {
-        obstacles[i].y += obstacleSpeed;
-
-        // Checar colisão (AABB box collision)
-        if (
-            player.x < obstacles[i].x + obstacles[i].width &&
-            player.x + player.width > obstacles[i].x &&
-            player.y < obstacles[i].y + obstacles[i].height &&
-            player.y + player.height > obstacles[i].y
-        ) {
-            gameOver = true;
-        }
-
-        // Se passar do final da tela, pontua e remove o obstáculo
-        if (obstacles[i].y > canvas.height) {
-            obstacles.splice(i, 1);
-            score++;
-            // Aumenta a velocidade gradualmente a cada 5 pontos
-            if (score % 5 === 0) obstacleSpeed += 0.5;
-        }
-    }
-
-    draw();
-    requestAnimationFrame(update);
+    spawnTimer = 0;
 }
 
 // Desenhar elementos na tela
@@ -114,19 +71,20 @@ function draw() {
     // Linhas divisórias da pista (pontilhadas)
     ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 4;
-    ctx.setLineDash([20, 20]);
+    ctx.setLineDash([20, 20]); // Cria efeito tracejado
     
     ctx.beginPath();
     ctx.moveTo(150, 0); ctx.lineTo(150, canvas.height);
     ctx.moveTo(250, 0); ctx.lineTo(250, canvas.height);
     ctx.stroke();
-    ctx.setLineDash([]); // Resetar padrão de linha
+    ctx.setLineDash([]); // Resetar padrão de linha para o restante dos desenhos
 
     // Desenhar Jogador (Carro Vermelho)
     ctx.fillStyle = player.color;
     ctx.fillRect(player.x, player.y, player.width, player.height);
-    // Detalhe simples das rodas
-    ctx.fillStyle = "#000";
+    
+    // Detalhe simples das rodas do jogador
+    ctx.fillStyle = "#000000";
     ctx.fillRect(player.x - 4, player.y + 10, 4, 15);
     ctx.fillRect(player.x + player.width, player.y + 10, 4, 15);
     ctx.fillRect(player.x - 4, player.y + 45, 4, 15);
@@ -136,8 +94,9 @@ function draw() {
     obstacles.forEach(obs => {
         ctx.fillStyle = obs.color;
         ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+        
         // Rodas dos obstáculos
-        ctx.fillStyle = "#000";
+        ctx.fillStyle = "#000000";
         ctx.fillRect(obs.x - 4, obs.y + 10, 4, 15);
         ctx.fillRect(obs.x + obs.width, obs.y + 10, 4, 15);
         ctx.fillRect(obs.x - 4, obs.y + 45, 4, 15);
@@ -148,24 +107,71 @@ function draw() {
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 20px Arial";
     ctx.fillText(`Pontos: ${score}`, 65, 35);
+
+    // Se der Game Over, desenha a tela por cima
+    if (gameOver) {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 30px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("FIM DE JOGO", canvas.width / 2, canvas.height / 2 - 20);
+
+        ctx.font = "20px Arial";
+        ctx.fillText(`Pontuação Final: ${score}`, canvas.width / 2, canvas.height / 2 + 20);
+        
+        ctx.fillStyle = "#ff4757";
+        ctx.fillText("Pressione ESPAÇO para reiniciar", canvas.width / 2, canvas.height / 2 + 70);
+        ctx.textAlign = "left"; // Resetar alinhamento padrão
+    }
 }
 
-// Tela de Game Over
-function drawGameOver() {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+// Loop principal do jogo que roda continuamente
+function gameLoop() {
+    if (!gameOver) {
+        // Movimentação do jogador (limitado às bordas da estrada)
+        if ((keys["ArrowLeft"] || keys["a"] || keys["A"]) && player.x > 55) {
+            player.x -= player.speed;
+        }
+        if ((keys["ArrowRight"] || keys["d"] || keys["D"]) && player.x < 305) {
+            player.x += player.speed;
+        }
 
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 30px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("FIM DE JOGO", canvas.width / 2, canvas.height / 2 - 20);
+        // Gerenciar tempo de aparecimento dos obstáculos
+        spawnTimer++;
+        if (spawnTimer > 60) { // Diminuído para nascer um pouco mais rápido
+            spawnObstacle();
+            spawnTimer = 0;
+        }
 
-    ctx.font = "20px Arial";
-    ctx.fillText(`Pontuação Final: ${score}`, canvas.width / 2, canvas.height / 2 + 20);
-    
-    ctx.fillStyle = "#ff4757";
-    ctx.fillText("Pressione ESPAÇO para reiniciar", canvas.width / 2, canvas.height / 2 + 70);
-    ctx.textAlign = "left"; // Resetar alinhamento
+        // Mover obstáculos e checar colisões
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+            obstacles[i].y += obstacleSpeed;
+
+            // Checar colisão (AABB box collision)
+            if (
+                player.x < obstacles[i].x + obstacles[i].width &&
+                player.x + player.width > obstacles[i].x &&
+                player.y < obstacles[i].y + obstacles[i].height &&
+                player.y + player.height > obstacles[i].y
+            ) {
+                gameOver = true;
+            }
+
+            // Se passar do final da tela, pontua e remove o obstáculo
+            if (obstacles[i].y > canvas.height) {
+                obstacles.splice(i, 1);
+                score++;
+                // Aumenta a velocidade gradualmente a cada 5 pontos
+                if (score % 5 === 0) obstacleSpeed += 0.5;
+            }
+        }
+    }
+
+    // Executa o desenho e chama o próximo quadro
+    draw();
+    requestAnimationFrame(gameLoop);
 }
 
 // Escuta para reiniciar com a barra de espaço
@@ -188,5 +194,6 @@ function toggleFullscreen() {
     }
 }
 
-// Iniciar o jogo automaticamente ao carregar
+// Inicializa as variáveis e dá a partida no loop dinâmico
 resetGame();
+gameLoop();
